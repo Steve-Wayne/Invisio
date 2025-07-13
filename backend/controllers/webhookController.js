@@ -27,7 +27,10 @@ export const githubWebhookHandler = (secret) => async (req, res, next) => {
   const payload = JSON.parse(req.body.toString("utf8"));
 
   try {
-    if (event === "pull_request") {
+    if(event === "installation_repositories") {
+      console.log("Received installation_repositories event:", payload.action);
+      await handleInstallationEvent(payload);
+    }if (event === "pull_request") {
       console.log("Received pull_request event:", payload.action);
       await handlePullRequestEvent(payload);
     } else if (event === "code_scanning_alert") {
