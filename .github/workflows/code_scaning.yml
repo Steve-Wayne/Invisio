@@ -1,0 +1,51 @@
+name: Code Scanning on Push and Pull Requests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+      - master
+
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+
+jobs:
+  codeql:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # Specify the Node.js version (adjust if necessary)
+
+      - name: Install Node.js dependencies (auto-detect)
+        if: env.has_js == 'true'
+  run: |
+    pkg_dir=$(find . -type f -name package.json -not -path "*/node_modules/*" -exec dirname {} \; | head -n 1)
+    if [ -n "$pkg_dir" ]; then
+      echo "Found package.json in $pkg_dir"
+      cd "$pkg_dir"
+      npm install
+    else
+      echo "No package.json found. Skipping npm install."
+    fi
+
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript  # Set the language to JavaScript for CodeQL analysis
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3

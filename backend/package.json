@@ -1,0 +1,35 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google/genai": "^1.8.0",
+    "@google/generative-ai": "^0.24.1",
+    "@langchain/core": "^0.3.57",
+    "@octokit/app": "^15.1.6",
+    "@octokit/core": "^6.1.5",
+    "@octokit/rest": "^21.1.1",
+    "axios": "^1.9.0",
+    "base-64": "^1.0.0",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "js-yaml": "^4.1.0",
+    "langchain": "^0.3.27",
+    "playwright": "^1.52.0",
+    "prettier": "^3.5.3",
+    "simple-git": "^3.28.0",
+    "tweetsodium": "^0.0.6"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

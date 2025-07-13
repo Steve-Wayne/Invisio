@@ -1,0 +1,29 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+
+# Test output
+test-results/
+coverage/
+
+# Local/dev files
+dump.js
+test.js
+
+# Private keys
+*.pem
+
+# OS and editor junk
+.DS_Store
+.vscode/
+.idea/
