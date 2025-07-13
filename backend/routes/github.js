@@ -10,9 +10,10 @@ const router = Router();
 
 const RateLimit = require('express-rate-limit');
 const limiter = RateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // max 100 requests per windowMs
 });
+
 router.use(limiter);
 
 router.route('/app/:owner/:repo/contents').get((req, res, next) => {
