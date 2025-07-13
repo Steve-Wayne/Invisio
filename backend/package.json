@@ -17,7 +17,7 @@
     "@langchain/core": "^0.3.57",
     "@octokit/app": "^15.1.6",
     "@octokit/core": "^6.1.5",
-    "@octokit/rest": "^21.1.1",
+    "@octokit/rest": "^22.0.0",
     "axios": "^1.9.0",
     "base-64": "^1.0.0",
     "dotenv": "^16.5.0",
