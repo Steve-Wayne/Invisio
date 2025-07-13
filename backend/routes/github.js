@@ -3,17 +3,16 @@ import { authenticate_app, fetch_installations, generate_install_token, get_id, 
 import { getRepoAlerts, generateAutofix, generateAutofixesPullRequest, enableSmartDependabot } from '../controllers/alertcontroller.js';
 import { githubWebhookHandler } from '../controllers/webhookController.js';
 import dotenv from 'dotenv';
-const RateLimit = require('express-rate-limit');
 
 dotenv.config();
 
 const router = Router();
 
+const RateLimit = require('express-rate-limit');
 const limiter = RateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // max 100 requests per windowMs
 });
-
 router.use(limiter);
 
 router.route('/app/:owner/:repo/contents').get((req, res, next) => {
