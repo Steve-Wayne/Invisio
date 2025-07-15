@@ -15,7 +15,7 @@
     "@google/genai": "^1.8.0",
     "@google/generative-ai": "^0.24.1",
     "@langchain/core": "^0.3.57",
-    "@octokit/app": "^15.1.6",
+    "@octokit/app": "^16.0.1",
     "@octokit/core": "^7.0.3",
     "@octokit/rest": "^22.0.0",
     "axios": "^1.9.0",
