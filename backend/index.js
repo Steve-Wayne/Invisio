@@ -2,7 +2,7 @@ import express from 'express'
 import router from './routes/github.js'
 import { errorHandler } from './middleware/errorHandler.js';
 import { githubWebhookHandler } from './controllers/webhookController.js';
-
+// this is the entry of the app
 const app=express()
 const PORT=process.env.PORT|| 8000
 // Middlewares
