@@ -1,28 +1,6 @@
-import express from 'express'
-import router from './routes/github.js'
-import { errorHandler } from './middleware/errorHandler.js';
-import { githubWebhookHandler } from './controllers/webhookController.js';
-// this is the entry of the application
-const app=express()
-const PORT=process.env.PORT|| 8000
-// Middlewares
-
-app.post(
-  '/github/webhook',
-  express.raw({ type: 'application/json' }),
-  githubWebhookHandler(process.env.GITHUB_WEBHOOK_SECRET)
-);
-
-
-app.use(express.json());
-
-// Routes
-app.use('/github', router);
-
-// Centralized error handler (should be after all routes)
-app.use(errorHandler);
-
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+import RateLimit from 'express-rate-limit';
+const limiter = RateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
 });
+app.use(limiter);
