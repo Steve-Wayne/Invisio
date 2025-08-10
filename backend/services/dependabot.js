@@ -63,21 +63,28 @@ export const buildDependabotYML = (updates) => {
 };
 
 export const commitDependabotYML = async (octokit, owner, repo) => {
-  const updates = await detectEcosystems(octokit, owner, repo);
-  const yamlContent = buildDependabotYML(updates);
-  const encoded = Buffer.from(yamlContent, 'utf-8').toString('base64');
+  try {
+    const updates = await detectEcosystems(octokit, owner, repo);
+    const yamlContent = buildDependabotYML(updates);
+    const encoded = Buffer.from(yamlContent, 'utf-8').toString('base64');
 
-  const { data: repoData } = await octokit.repos.get({ owner, repo });
-  const defaultBranch = repoData.default_branch;
+    const { data: repoData } = await octokit.repos.get({ owner, repo });
+    const defaultBranch = repoData.default_branch;
 
-  await octokit.repos.createOrUpdateFileContents({
-    owner,
-    repo,
-    path: '.github/dependabot.yml',
-    message: 'Add dependabot.yml for dependency updates',
-    content: encoded,
-    branch: defaultBranch,
-  });
+    const res = await octokit.repos.createOrUpdateFileContents({
+      owner,
+      repo,
+      path: '.github/dependabot.yml',
+      message: 'Add dependabot.yml for dependency updates',
+      content: encoded,
+      branch: defaultBranch,
+    });
 
-  console.log(' Dependabot configuration committed successfully.');
+    console.log(`Dependabot config committed for ${owner}/${repo} (commit: ${res.data.commit.sha})`);
+    return res.data;
+  } catch (err) {
+    console.error(`Failed to commit Dependabot config for ${owner}/${repo}:`, err.message);
+    throw err;
+  }
 };
+

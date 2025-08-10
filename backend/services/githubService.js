@@ -29,7 +29,7 @@ export const Install_process= class Install{
       }
     
       const match = data.find(item => item.account && item.account.login === login);
-      
+
       if (match) {
         return match.id;
       } else {
@@ -53,7 +53,6 @@ export const Install_process= class Install{
     async get_Installations(){
       try{
         const response= await app.octokit.request('GET /app/installations');
-        console.log(typeof(response.data));
         
         return response.data;
       }

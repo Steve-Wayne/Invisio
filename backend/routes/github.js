@@ -3,7 +3,7 @@ import { authenticate_app, fetch_installations, generate_install_token, get_id, 
 import { getRepoAlerts, generateAutofix, generateAutofixesPullRequest, enableSmartDependabot } from '../controllers/alertcontroller.js';
 import { githubWebhookHandler } from '../controllers/webhookController.js';
 import dotenv from 'dotenv';
-const RateLimit = require('express-rate-limit');
+import RateLimit from 'express-rate-limit';
 
 dotenv.config();
 
@@ -70,5 +70,6 @@ router.route('/app/:owner/:repo/enable-dependabot').post((req, res, next) => {
   console.log('Enable smart dependabot for', req.params.owner, req.params.repo);
   next();
 }, enableSmartDependabot);
+
 
 export default router;

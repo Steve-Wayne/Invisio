@@ -2,6 +2,7 @@ import { Octokit } from '@octokit/rest';
 import { Install_process } from './githubService.js';
 import { CommitFlow } from './code-scanning.js';
 import { commitDependabotYML } from './dependabot.js';
+import { Gitleakscommit } from './gitleaks.js';
 
 export const InvisioFlow = class Envison {
     constructor(owner, installationId) {
@@ -46,7 +47,9 @@ export const InvisioFlow = class Envison {
             if (e.status === 404) {
                 console.log("Workflows folder missing. Committing default workflow.");
                 await CommitFlow(this.octokit, this.owner, repo);
-                return;
+                await Gitleakscommit(this.octokit, this.owner, repo);
+                console.log('Default workflows committed successfully.');
+                return ;
             }
             console.error('Error checking workflows:', e.message);
             throw e;
@@ -229,64 +232,64 @@ async hasWebhook(repo, webhookUrl) {
             throw e;
         }
     }
-    async enableDependabot(repo) {
-        const dependabotPath = '.github/dependabot.yml';
-        let hasDependabot = true;
-        try {
-            await this.octokit.repos.getContent({
-                owner: this.owner,
-                repo: repo,
-                path: dependabotPath
-            });
-        } catch (e) {
-            if (e.status === 404) {
-                hasDependabot = false;
-            } else {
-                throw e;
-            }
-        }
-        if (hasDependabot) {
-            console.log('Dependabot already enabled for', repo);
-            return { alreadyEnabled: true };
-        }
-        // Create a new branch from default branch
-        const { data: repoData } = await this.octokit.repos.get({ owner: this.owner, repo });
-        const defaultBranch = repoData.default_branch;
-        const branchName = 'enable-dependabot';
-        const branchRef = `refs/heads/${branchName}`;
-        const baseSha = repoData.pushed_at ? (await this.octokit.git.getRef({ owner: this.owner, repo, ref: `heads/${defaultBranch}` })).data.object.sha : repoData.default_branch;
-        try {
-            await this.octokit.git.createRef({
-                owner: this.owner,
-                repo,
-                ref: branchRef,
-                sha: baseSha
-            });
-        } catch (e) {
-            if (e.status !== 422) throw e; // 422 = already exists
-        }
-        // Recommended dependabot.yml content
-        const dependabotYml = `version: 2\nupdates:\n  - package-ecosystem: \'npm\'\n    directory: \'/\'\n    schedule:\n      interval: \'weekly\'\n`;
-        // Create the file in the new branch
-        await this.octokit.repos.createOrUpdateFileContents({
-            owner: this.owner,
-            repo,
-            path: dependabotPath,
-            message: 'Enable Dependabot for dependency updates',
-            content: Buffer.from(dependabotYml).toString('base64'),
-            branch: branchName
-        });
-        // Open a pull request
-        const pr = await this.octokit.pulls.create({
-            owner: this.owner,
-            repo,
-            title: 'Enable Dependabot for dependency updates',
-            head: branchName,
-            base: defaultBranch,
-            body: 'This PR adds a recommended Dependabot configuration to keep dependencies up to date.'
-        });
-        return { prUrl: pr.data.html_url };
-    }
+    // async enableDependabot(repo) {
+    //     const dependabotPath = '.github/dependabot.yml';
+    //     let hasDependabot = true;
+    //     try {
+    //         await this.octokit.repos.getContent({
+    //             owner: this.owner,
+    //             repo: repo,
+    //             path: dependabotPath
+    //         });
+    //     } catch (e) {
+    //         if (e.status === 404) {
+    //             hasDependabot = false;
+    //         } else {
+    //             throw e;
+    //         }
+    //     }
+    //     if (hasDependabot) {
+    //         console.log('Dependabot already enabled for', repo);
+    //         return { alreadyEnabled: true };
+    //     }
+    //     // Create a new branch from default branch
+    //     const { data: repoData } = await this.octokit.repos.get({ owner: this.owner, repo });
+    //     const defaultBranch = repoData.default_branch;
+    //     const branchName = 'enable-dependabot';
+    //     const branchRef = `refs/heads/${branchName}`;
+    //     const baseSha = repoData.pushed_at ? (await this.octokit.git.getRef({ owner: this.owner, repo, ref: `heads/${defaultBranch}` })).data.object.sha : repoData.default_branch;
+    //     try {
+    //         await this.octokit.git.createRef({
+    //             owner: this.owner,
+    //             repo,
+    //             ref: branchRef,
+    //             sha: baseSha
+    //         });
+    //     } catch (e) {
+    //         if (e.status !== 422) throw e; // 422 = already exists
+    //     }
+    //     // Recommended dependabot.yml content
+    //     const dependabotYml = `version: 2\nupdates:\n  - package-ecosystem: \'npm\'\n    directory: \'/\'\n    schedule:\n      interval: \'weekly\'\n`;
+    //     // Create the file in the new branch
+    //     await this.octokit.repos.createOrUpdateFileContents({
+    //         owner: this.owner,
+    //         repo,
+    //         path: dependabotPath,
+    //         message: 'Enable Dependabot for dependency updates',
+    //         content: Buffer.from(dependabotYml).toString('base64'),
+    //         branch: branchName
+    //     });
+    //     // Open a pull request
+    //     const pr = await this.octokit.pulls.create({
+    //         owner: this.owner,
+    //         repo,
+    //         title: 'Enable Dependabot for dependency updates',
+    //         head: branchName,
+    //         base: defaultBranch,
+    //         body: 'This PR adds a recommended Dependabot configuration to keep dependencies up to date.'
+    //     });
+    //     return { prUrl: pr.data.html_url };
+    // }
     async smartEnableDependabot(repo) {
         if (!this.octokit) throw new Error('Octokit not initialized');
         // Check if dependabot.yml already exists
