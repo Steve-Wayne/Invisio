@@ -25,7 +25,7 @@ This document lists all available API endpoints for the backend service. Use the
 - **GET `/app/:owner/:repo/contents`**
   - Get repository contents (workflows, etc).
 
-- **GET `/app/:owner/:repo/variables`**
+- **GET `/app/:owner/:repo/alert`**
   - Get repository secrets/variables (alerts).
 
 - **POST `/app/:owner/:repo/fixalerts`**
