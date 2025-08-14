@@ -80,7 +80,12 @@ export const commitDependabotYML = async (octokit, owner, repo) => {
       branch: defaultBranch,
     });
 
-    console.log(`Dependabot config committed for ${owner}/${repo} (commit: ${res.data.commit.sha})`);
+console.error(
+  'Failed to commit Dependabot config for %s/%s:',
+  owner,
+  repo,
+  err.message,
+);
     return res.data;
   } catch (err) {
     console.error(`Failed to commit Dependabot config for ${owner}/${repo}:`, err.message);
