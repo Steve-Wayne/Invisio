@@ -7,14 +7,22 @@ const app=express()
 const PORT=process.env.PORT|| 8000
 // Middlewares
 
+var RateLimit = require('express-rate-limit');
+
+const webhookLimiter = RateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50, // max 50 requests per 15 minutes per IP
+  message: 'Too many requests to the webhook endpoint, please try again later.',
+});
+
 app.post(
   '/github/webhook',
   express.raw({ type: 'application/json' }),
-  githubWebhookHandler(process.env.GITHUB_WEBHOOK_SECRET)
+  // AI FIX START
+  webhookLimiter,
+  githubWebhookHandler(process.env.GITHUB_WEBHOOK_SECRET),
+  // AI FIX END
 );
-
-
-app.use(express.json());
 
 // Routes
 app.use('/github', router);
