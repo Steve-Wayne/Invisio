@@ -84,7 +84,7 @@ export const commitDependabotYML = async (octokit, owner, repo) => {
     return res.data;
   } catch (err) {
 console.error(
-  'Failed to commit Dependabot config for %s/%s: %s',
+  'Failed to commit Dependabot config for %s/%s:',
   owner,
   repo,
   err.message,
