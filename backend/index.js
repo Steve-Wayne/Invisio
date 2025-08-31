@@ -11,16 +11,18 @@ app.post(
   '/github/webhook',
   express.raw({ type: 'application/json' }),
   // AI FIX START
-  require('express-rate-limit')({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 1000, // max 1000 requests per 15 minutes per IP
-    message:
-      'Too many requests from this IP, please try again after 15 minutes',
-  }),
+  // Define and apply a rate limiter for this specific route, e.g.:
+  // const githubWebhookRateLimiter = require('express-rate-limit')({
+  //   windowMs: 15 * 60 * 1000, // 15 minutes
+  //   max: 50, // Max 50 requests per IP per 15 minutes
+  //   message: 'Too many GitHub webhook requests from this IP, please try again after 15 minutes',
+  //   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  //   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  // });
+  githubWebhookRateLimiter,
   githubWebhookHandler(process.env.GITHUB_WEBHOOK_SECRET),
   // AI FIX END
 );
-app.use(express.json());
 
 // Routes
 app.use('/github', router);
