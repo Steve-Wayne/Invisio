@@ -76,9 +76,9 @@ ${conflictedContent}
   
   async generate_fix(alertMessage, codeSnippet, vulnInfo , lang) {
     try {
-      const pineconeResults = await search_queries(alertMessage, lang);
-      const pineconeContext =
-        pineconeResults.hits.text?.map((r) => r.text).join("\n---\n") || "";
+      // const pineconeResults = await search_queries(alertMessage, lang);
+      // const pineconeContext =
+      //   pineconeResults.hits.text?.map((r) => r.text).join("\n---\n") || "";
       const prompt = `
 You are a senior secure coding assistant.
 Relevant Help and Examples:

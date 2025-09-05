@@ -1,22 +1,16 @@
-import axios from "axios";
+import openai from "openai";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 
-const deepseek = axios.create({
-  baseURL: "https://api.deepseek.com/v1/chat/completions",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
-  },
+const deepseek = new openai.OpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: DEEPSEEK_API_KEY,
 });
 
 export const DeepSeekService = class {
-  /**
-   * Generate a structured AI fix for a CodeQL alert.
-   */
   async generate_fix(alertMessage, codeSnippet, vulnInfo) {
     try {
       console.log("DeepSeek API Key:", DEEPSEEK_API_KEY);
@@ -56,17 +50,14 @@ Instructions:
 - Output must be valid parseable JSON.
       `;
 
-      const response = await deepseek.post("", {
-        model: "deepseek-code", // or "deepseek-chat"
+      const response = await deepseek.chat.completions.create({
         messages: [{ role: "user", content: prompt }],
-        temperature: 0,
+        model: "deepseek-reasoner",
       });
 
       let fixData;
       try {
-        fixData = JSON.parse(
-          response.data.choices[0].message.content.trim()
-        );
+        fixData = JSON.parse(response.data.choices[0].message.content.trim());
       } catch (err) {
         throw new Error(
           "generate_fix did not return valid JSON: " + err.message
@@ -79,10 +70,6 @@ Instructions:
       throw err;
     }
   }
-
-  /**
-   * Deduplicate imports & definitions in code after AI fixes.
-   */
   async deduplicate_fix(fixJson) {
     try {
       const prompt = `
@@ -101,10 +88,9 @@ ${JSON.stringify(fixJson, null, 2)}
 \`\`\`
       `;
 
-      const response = await deepseek.post("", {
-        model: "deepseek-code", // better for programming tasks
+      const response = await deepseek.chat.completions.create({
         messages: [{ role: "user", content: prompt }],
-        temperature: 0,
+        model: "deepseek-reasoner",
       });
 
       return response.data.choices[0].message.content.trim();
@@ -113,4 +99,5 @@ ${JSON.stringify(fixJson, null, 2)}
       throw e;
     }
   }
+  
 };

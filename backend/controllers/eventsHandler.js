@@ -1,6 +1,7 @@
 import { InvisioFlow } from '../services/WorkflowService.js';
 import { GeminiService } from '../services/provider_gemini.js';
 import { generateAutofixesPullRequest } from './alertcontroller.js';
+import { applyAnalysisResults , initWorkflowService } from './automaters.js';
 import simpleGit from 'simple-git';
 import fs from 'fs/promises';
 import os from 'os';
@@ -67,37 +68,19 @@ export const handlePullRequestEvent = async (payload) => {
     const prBody = payload.pull_request?.body || '';
     // Get the PR diff
     const installationId = payload.installation?.id;
-    const workflowService = new (await import('../services/WorkflowService.js')).InvisioFlow(owner, installationId);
-    await workflowService.init();
+    const workflowService = await initWorkflowService(owner, installationId);
     const { data: diff } = await workflowService.octokit.pulls.get({ owner, repo, pull_number: prNumber });
     const prDiff = diff.diff_url ? (await (await fetch(diff.diff_url)).text()) : '';
     // Analyze PR with Gemini
     const gemini = new GeminiService();
     const analysis = await gemini.analyze_pr(prTitle, prBody, prDiff);
     // Add labels if any
-    if (analysis.labels && analysis.labels.length > 0) {
-      await workflowService.octokit.issues.addLabels({
-        owner,
-        repo,
-        issue_number: prNumber,
-        labels: analysis.labels
-      });
-    }
-    // Add review comment if any
-    if (analysis.comment) {
-      await workflowService.octokit.pulls.createReview({
-        owner,
-        repo,
-        pull_number: prNumber,
-        body: analysis.comment,
-        event: 'COMMENT'
-      });
-    }
+    await applyAnalysisResults(workflowService, { owner, repo, prNumber }, analysis);
     console.log('PR analyzed and suggestions posted.');
   } catch (e) {
     console.error('Error handling pull_request event with Gemini:', e);
   }
-};
+}
 
 // Auto-rebase handler for PRs behind base branch
 export const handleAutoRebasePR = async (payload) => {

@@ -78,3 +78,25 @@ export function generatePRBody(codeBlocks) {
     { prBody }
   );
 }
+// function to apply analysis results (labels, comments) to a PR
+export async function applyAnalysisResults(workflowService, { owner, repo, prNumber }, analysis) {
+  if (analysis.labels?.length > 0) {
+    await workflowService.octokit.issues.addLabels({
+      owner,
+      repo,
+      issue_number: prNumber,
+      labels: analysis.labels,
+    });
+  }
+
+  if (analysis.comment) {
+    await workflowService.octokit.pulls.createReview({
+      owner,
+      repo,
+      pull_number: prNumber,
+      body: analysis.comment,
+      event: "COMMENT",
+    });
+  }
+}
+

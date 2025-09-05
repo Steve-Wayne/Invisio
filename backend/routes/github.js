@@ -2,6 +2,7 @@ import express, { Router } from 'express';
 import { authenticate_app, fetch_installations, generate_install_token, get_id, getRepository, checkRepoWebhook, getUserInstallationsAndReposController, getPulls } from '../controllers/githubcontrollers.js';
 import { getRepoAlerts, generateAutofix, generateAutofixesPullRequest, enableSmartDependabot } from '../controllers/alertcontroller.js';
 import { githubWebhookHandler } from '../controllers/webhookController.js';
+import { analyzePullRequest } from '../controllers/pull_controller.js';
 import dotenv from 'dotenv';
 import RateLimit from 'express-rate-limit';
 
@@ -15,6 +16,10 @@ const limiter = RateLimit({
 });
 
 router.use(limiter);
+
+// Pull Request Endpoints
+router.post('/app/:owner/:repo/pulls/:number/analyze', analyzePullRequest);
+
 // Repo Endpoints 
 router.route('/app/:owner/:repo/contents').get((req, res, next) => {
   console.log('Find workflows for');
