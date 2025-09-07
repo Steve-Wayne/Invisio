@@ -10,8 +10,8 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy package files
-COPY package*.json ./
+# Copy package.json and package-lock.json from the inner backend folder
+COPY backend/package.json backend/package-lock.json ./
 
 # Install dependencies
 RUN npm ci --only=production
