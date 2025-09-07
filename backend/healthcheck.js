@@ -1,11 +1,11 @@
 // Simple health check script
-const http = require('http');
+import http from 'http';
 
 const options = {
   host: 'localhost',
   port: 8000,
   timeout: 2000,
-  path: '/' // You can change this to a specific health check endpoint if you have one
+  path: '/github/app/installations' // You can change this to a specific health check endpoint if you have one
 };
 
 const request = http.request(options, (res) => {

@@ -1,8 +1,8 @@
-# Use Node.js 24 as the base image
-FROM node:24-slim
+FROM node:22-slim
 
-# Set working directory
-WORKDIR /app
+# Set the working directory
+WORKDIR /app 
+
 
 # Install necessary system dependencies
 RUN apt-get update && apt-get install -y \
@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+# Copying package .json files from src
+COPY package.json ./
 
 # Install dependencies
 RUN npm install --omit=dev
