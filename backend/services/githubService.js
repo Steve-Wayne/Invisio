@@ -11,9 +11,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const privateKeyPath = path.resolve(__dirname, '..', process.env.APP_PRIVATE_KEY_PATH);
+const privateKey=Buffer.from(process.env.APP_PRIVATE_KEY, 'base64').toString('utf-8');
 const app= new App({
   appId:Number(process.env.APP_ID),
-  privateKey:fs.readFileSync(privateKeyPath, 'utf8'),
+  privateKey:privateKey,
 })
 
 export const Install_process= class Install{
