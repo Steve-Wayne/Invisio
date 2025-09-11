@@ -7,10 +7,10 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 dotenv.config()
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
-const privateKeyPath = path.resolve(__dirname, '..', process.env.APP_PRIVATE_KEY_PATH);
+// const privateKeyPath = path.resolve(__dirname, '..', process.env.APP_PRIVATE_KEY_PATH);
 const privateKey=Buffer.from(process.env.APP_PRIVATE_KEY, 'base64').toString('utf-8');
 const app= new App({
   appId:Number(process.env.APP_ID),
