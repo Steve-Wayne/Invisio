@@ -8,7 +8,7 @@ const PORT=process.env.PORT|| 8000
 // Middlewares
 
 app.post(
-  '/github/webhook',
+  '/webhook',
   express.raw({ type: 'application/json' }),
   githubWebhookHandler(process.env.GITHUB_WEBHOOK_SECRET)
 );

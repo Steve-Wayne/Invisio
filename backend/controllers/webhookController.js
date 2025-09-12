@@ -12,7 +12,8 @@ function verifySignature(req, secret) {
   if (!signature || !secret) return false;
 
   const hmac = crypto.createHmac("sha256", secret);
-  const digest = "sha256=" + hmac.update(req.body).digest("hex");
+  hmac.update(req.body);
+  const digest = "sha256=" + hmac.digest("hex");
 
   if (signature.length !== digest.length) return false;
   return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
