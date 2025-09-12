@@ -17,7 +17,7 @@ app.post(
 app.use(express.json());
 
 // Routes
-app.use('/github', router);
+app.use('/', router);
 
 // Centralized error handler (should be after all routes)
 app.use(errorHandler);
