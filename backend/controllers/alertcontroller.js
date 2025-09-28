@@ -1,15 +1,15 @@
 import fs from "fs";
 import { Install_process } from "../services/githubService.js";
 import { InvisioFlow } from "../services/WorkflowService.js";
-import { OpenAIService } from "../services/provider_openai.js";
+import { OpenAIService } from "../services/models/provider_openai.js";
 import {
   extractCodeBlock,
   formatJavaScript,
   parseAIFixResponse,
 } from "../services/formatter.js";
 import { callWithRetry } from "../services/retry.js";
-import { DeepSeekService } from "../services/provider_deepseek.js";
-import { GeminiService } from "../services/provider_gemini.js";
+import { DeepSeekService } from "../services/models/provider_deepseek.js";
+import { GeminiService } from "../services/models/provider_gemini.js";
 import { diffLines } from "diff";
 import {
   initWorkflowService,

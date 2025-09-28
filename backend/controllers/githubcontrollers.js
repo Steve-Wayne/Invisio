@@ -2,7 +2,7 @@ import { error } from 'console';
 import { Install_process, getUserInstallationsAndRepos }   from '../services/githubService.js';
 import fs from 'fs';
 import { InvisioFlow } from '../services/WorkflowService.js';
-import { OpenAIService } from '../services/provider_openai.js';
+import { OpenAIService } from '../services/models/provider_openai.js';
 
 export const authenticate_app=async(req,res)=>{
   try{

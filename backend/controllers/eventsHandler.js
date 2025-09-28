@@ -1,5 +1,5 @@
 import { InvisioFlow } from '../services/WorkflowService.js';
-import { GeminiService } from '../services/provider_gemini.js';
+import { GeminiService } from '../services/models/provider_gemini.js';
 import { generateAutofixesPullRequest } from './alertcontroller.js';
 import { applyAnalysisResults , initWorkflowService } from './automaters.js';
 import simpleGit from 'simple-git';
@@ -123,53 +123,7 @@ export const handleAutoRebasePR = async (payload) => {
  * Attempts to auto-resolve merge conflicts in a PR using Gemini AI.
  * @param {object} params - { owner, repo, prNumber, base, head, installationId, octokit }
  */
-export async function resolveMergeConflictsWithAI({ owner, repo, prNumber, base, head, installationId, octokit }) {
-  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pr-rebase-'));
-  const git = simpleGit(tmpDir);
-  try {
-    // 1. Clone repo
-    const repoUrl = `https://x-access-token:${process.env.GITHUB_APP_TOKEN}@github.com/${owner}/${repo}.git`;
-    await git.clone(repoUrl, tmpDir);
-    await git.cwd(tmpDir);
-    // 2. Fetch and checkout PR branch
-    await git.fetch('origin', head);
-    await git.checkout(head);
-    // 3. Fetch and merge base
-    await git.fetch('origin', base);
-    try {
-      await git.merge([`origin/${base}`]);
-    } catch (mergeErr) {
-      // 4. If conflicts, resolve with Gemini
-      const status = await git.status();
-      for (const file of status.conflicted) {
-        const filePath = path.join(tmpDir, file);
-        let content = await fs.readFile(filePath, 'utf8');
-        // Call Gemini to resolve conflict
-        const gemini = new GeminiService();
-        const resolved = await gemini.resolveConflict(file, content);
-        await fs.writeFile(filePath, resolved, 'utf8');
-        await git.add(file);
-      }
-      await git.commit('Resolve merge conflicts using Gemini AI');
-    }
-    // 5. Push updated PR branch
-    await git.push('origin', head);
-    // 6. Comment on PR
-    await octokit.issues.createComment({
-      owner,
-      repo,
-      issue_number: prNumber,
-      body: 'Conflicts resolved via AI. Please review the changes.'
-    });
-    console.log(`Conflicts resolved and branch pushed for PR #${prNumber}`);
-  } catch (err) {
-    console.error('Error during AI conflict resolution:', err);
-    throw err;
-  } finally {
-    // Clean up temp dir
-    await fs.rm(tmpDir, { recursive: true, force: true });
-  }
-}
+e
 
 
 export const handleCheckRunEvent = async (payload) => {

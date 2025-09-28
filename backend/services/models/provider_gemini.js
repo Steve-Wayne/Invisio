@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
-import { search_queries } from "./db/db_connect.js";
+import { search_queries } from "../db/db_connect.js";
 dotenv.config();
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
