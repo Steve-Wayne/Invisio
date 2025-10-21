@@ -21,8 +21,6 @@ import {
 } from "./automaters.js";
 import { get } from "http";
 const openAIService = new GeminiService();
-
-// Helper function to get the autofix code block
 function normalizeLanguage(lang) {
   if (!lang) return "unknown";
 
@@ -61,13 +59,9 @@ export async function getAutofixCode(owner, repo, alert) {
     3 // max retries
   );
 
-  // 5. Format the JavaScript code
   const formattedAfter = await formatJavaScript(dedupedAfter);
 
-  // 6. Extract pure code without any Markdown fence
   const cleanCode = await extractCodeBlock(formattedAfter);
-
-  // 7. Return structured result for further patching
   return {
     before,
     after: cleanCode,
@@ -177,59 +171,6 @@ export const generateAutofix = async (req, res) => {
     res.status(500).json({ error: "Failed to generate autofix" });
   }
 };
-
-/**
- * Generate autofixes and create a pull request.
- */
-// export const generateAutofixesPullRequest = async (req, res) => {
-//   const { owner, repo } = req.params;
-//   try {
-//     const workflowService = new InvisioFlow(owner);
-//     await workflowService.init();
-//     const alerts = await workflowService.get_alerts(repo);
-//     const openAlerts = Array.isArray(alerts) ? alerts.filter(a => a.state === "open") : (alerts && alerts.state === "open" ? [alerts] : []);
-//     if (!openAlerts.length) return res.json({ message: "No open alerts for autofix." });
-//     const openaler=openAlerts.slice(0,2);
-//     const branchRef = "refs/heads/autofixes";
-//     await workflowService.create_new_branch(repo, branchRef);
-//     const codeBlocks = [];
-//     for (const alert of openaler) {
-//       const codeBlock = await getAutofixCode(owner, repo, alert);
-//       codeBlocks.push({ alert, codeBlock });
-//       await workflowService.create_commit(
-//         repo,
-//         branchRef,
-//         alert.most_recent_instance.location.path,
-//         codeBlock,
-//         `Autofix commit for alert #${alert.number || ''} from AI`
-//       );
-//     }
-//     // Open a single pull request for all alerts
-//     if (codeBlocks.length === 0) {
-//       return res.json({ message: "No autofixes generated." });
-//     }
-//     const repoData= await workflowService.get_repo_info(repo);
-//     if(!repoData || !repoData.default_branch) {
-//       return res.status(404).json({ error: "Repository not found or default branch missing." });
-//     }
-//     const prBody = codeBlocks.map(({ alert, codeBlock }) =>
-//       `### Alert: ${alert.rule.description || 'N/A'}\n` +
-//       `**File:** ${alert.most_recent_instance.location.path || 'N/A'}\n` +
-//       `**Alert URL:** ${alert.html_url || 'N/A'}\n` +
-//       '```js\n' + codeBlock + '\n```\n'
-//     ).join('\n---\n');
-//     const pr = await workflowService.open_pull_request(
-//       repo,
-//       repoData.default_branch,
-//       'autofixes',
-//       { rule: { description: 'Batch autofix for multiple alerts' }, html_url: '', most_recent_instance: { location: { path: '' } }, prBody }
-//     );
-//     res.json({ codeBlocks, pullRequest: pr });
-//   } catch (error) {
-//     res.status(500).json({ error: "Unstable command" });
-//   }
-// };
-
 export const generateAutofixesPullRequest = async (req, res) => {
   const { owner, repo } = req.params;
 
@@ -270,18 +211,19 @@ export const generateAutofixesPullRequest = async (req, res) => {
         .status(404)
         .json({ error: "Repository not found or default branch missing." });
     }
-
+    
     // 5. Create PR body with explanation + snippet
-    const prBody = await generatePRBody(codeBlocks);
+  const prBody = await generatePRBody(codeBlocks);
+  
 
-    // 6. Open a PR
-    const pr = await openPullRequest(
-      workflowService,
-      repo,
-      repoData.default_branch,
-      "autofixes",
-      prBody
-    );
+  // 6. Open a PR
+  const pr = await openPullRequest(
+    workflowService,
+    repo,
+    repoData.default_branch,
+    "autofixes",
+    prBody
+  );
     res.json({ codeBlocks, pullRequest: prBody });
   } catch (error) {
     console.error("Error creating autofix PR:", error);

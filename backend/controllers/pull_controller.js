@@ -1,7 +1,6 @@
 import { GeminiService } from '../services/models/provider_gemini.js';
 import { InvisioFlow } from '../services/WorkflowService.js';
-import { initWorkflowService } from './automaters.js';
-import { applyAnalysisResults } from './automaters.js';
+import { initWorkflowService ,applyAnalysisResults } from './automaters.js';
 
 export const analyzePullRequest = async (req, res) => {
     try {
