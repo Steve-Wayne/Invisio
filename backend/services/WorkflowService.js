@@ -73,20 +73,6 @@ export const InvisioFlow = class Envison {
       throw e;
     }
   }
-  // async get_fault_code(alert, repo) {
-  // const file = await this.octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
-  //     owner: this.owner,
-  //     repo: repo,
-  //     path: alert.most_recent_instance.location.path,
-  //     ref: alert.most_recent_instance.ref,
-  // });
-
-  // const content = Buffer.from(file.data.content, "base64").toString("utf-8");
-  // const lines = content.split("\n");
-  // return {
-  //     fault: lines,
-  //     message: alert.rule.help,
-  // };
   async get_fault_code(alert, repo) {
     const { data } = await this.octokit.request(
       "GET /repos/{owner}/{repo}/contents/{path}",
@@ -233,34 +219,6 @@ export const InvisioFlow = class Envison {
       throw e;
     }
   }
-  
-
-  // async open_pull_request(repo, base, head, alert = null) {
-  //     try {
-  //         let body = undefined;
-  //         if (alert) {
-  //             // Compose a body from alert info (customize as needed)
-  //             body = `Automated fix for code scanning alert:\n\n` +
-  //                 `**Rule:** ${alert.rule?.description || 'N/A'}\n` +
-  //                 `**Alert Message:** ${alert.rule?.help || 'N/A'}\n` +
-  //                 `**File:** ${alert.most_recent_instance?.location?.path || 'N/A'}\n` +
-  //                 `**Alert URL:** ${alert.html_url || 'N/A'}`;
-  //         }
-  //         const { data } = await this.octokit.request('POST /repos/{owner}/{repo}/pulls', {
-  //             owner: this.owner,
-  //             repo: repo,
-  //             title: 'Automated Code Scanning Fixes',
-  //             head: head,
-  //             base: base,
-  //             body: body,
-  //         });
-  //         console.log(`Pull request opened: ${data.html_url}`);
-  //         return data;
-  //     } catch (e) {
-  //         console.error('Error opening pull request:', e.message);
-  //         throw e;
-  //     }
-  // }
   async create_commit(
     repo,
     branchRef,
