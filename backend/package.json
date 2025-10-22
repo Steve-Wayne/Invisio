@@ -14,7 +14,11 @@
   "dependencies": {
     "@google/genai": "^1.8.0",
     "@google/generative-ai": "^0.24.1",
-    "@langchain/core": "^0.3.57",
+    "@langchain/community": "^0.3.57",
+    "@langchain/core": "^0.3.78",
+    "@langchain/google-genai": "^0.2.18",
+    "@langchain/langgraph": "^0.4.9",
+    "@langchain/openai": "^0.6.16",
     "@octokit/app": "^16.0.1",
     "@octokit/core": "^7.0.3",
     "@octokit/rest": "^22.0.0",
@@ -22,16 +26,18 @@
     "axios": "^1.9.0",
     "base-64": "^1.0.0",
     "diff": "^8.0.2",
-    "dotenv": "^17.2.0",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
     "highlight.js": "^11.11.1",
     "js-yaml": "^4.1.0",
     "langchain": "^0.3.27",
+    "mongoose": "^8.19.2",
     "playwright": "^1.52.0",
     "prettier": "^3.5.3",
     "simple-git": "^3.28.0",
-    "tweetsodium": "^0.0.6"
+    "tweetsodium": "^0.0.6",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

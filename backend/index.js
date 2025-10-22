@@ -2,11 +2,12 @@ import express from 'express'
 import router from './routes/github.js'
 import { errorHandler } from './middleware/errorHandler.js';
 import { githubWebhookHandler } from './controllers/webhookController.js';
+import { ConnectDB } from './services/db/mongo_db.js';
 // this is the entry of the application
 const app=express()
 const PORT=process.env.PORT|| 8000
 // Middlewares
-
+await ConnectDB() 
 app.post(
   '/webhook',
   express.raw({ type: 'application/json' }),
@@ -21,6 +22,7 @@ app.use('/', router);
 
 // Centralized error handler (should be after all routes)
 app.use(errorHandler);
+
 
 // Start server
 app.listen(PORT, () => {

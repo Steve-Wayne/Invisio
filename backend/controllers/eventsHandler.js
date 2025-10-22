@@ -128,10 +128,11 @@ export const handleAutoRebasePR = async (payload) => {
 
 export const handleCheckRunEvent = async (payload) => {
   console.log("Received check_run event:", payload.action);
+  const regex = /\((?!actions\))[^\)]*\)/;
 
   if (
     payload.action === "completed" &&
-    payload.check_run.name.toLowerCase().includes("codeql") &&
+    regex.test(payload.check_run.name.toLowerCase()) &&
     payload.check_run.conclusion === "success"
   ) {
     const owner = payload.repository.owner.login;
