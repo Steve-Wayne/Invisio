@@ -135,4 +135,3 @@ export const getPulls=async(req , res , next)=>{
     res.status(500).json({ error: 'Failed to fetch pull requests' });
   }
 }
-

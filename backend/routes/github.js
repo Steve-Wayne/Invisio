@@ -81,4 +81,9 @@ router.route('/app/:owner/:repo/pull').get((req , res , next)=>{
   console.log('Get Pulls for', req.params.owner, req.params.repo);
   next();
 } , getPulls);
+
+// Hollow purple
+router.route('/app/:owner/:repo/install_event/wakeup').get((req , res , next)=>{
+  console.log('Arise');
+})
 export default router;

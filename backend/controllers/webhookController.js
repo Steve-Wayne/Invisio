@@ -6,7 +6,7 @@ import {
   handlePullRequestEvent,
   handleCheckRunEvent,
 } from "./eventsHandler.js";
-// GitHub signature verification
+
 function verifySignature(req, secret) {
   const signature = req.headers["x-hub-signature-256"];
   if (!signature || !secret) return false;
@@ -39,10 +39,7 @@ export const githubWebhookHandler = (secret) => async (req, res, next) => {
     } else if (event === "check_run") {
       console.log("Received check_run event:", payload.action);
       await handleCheckRunEvent(payload);
-    } else {
-      console.log("Unhandled event:", event);
-    }
-
+    } 
     res.status(200).json({ success: true });
   } catch (error) {
     next(error);

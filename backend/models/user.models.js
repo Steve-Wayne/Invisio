@@ -5,16 +5,15 @@ const UserSchema = new mongoose.Schema(
     username: {
       type: String,
       required: true,
-      unique: true,
     },
-    installation_id: {
+    user_id: {
       type: String,
       required: true,
       unique: true,
     },
     Subscription_Status: {
       type: String,
-      required: true,
+      default: 'Free',
     },
     Repositories:[ {
       type: mongoose.Schema.Types.ObjectId,
