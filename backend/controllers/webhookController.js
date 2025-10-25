@@ -30,7 +30,11 @@ export const githubWebhookHandler = (secret) => async (req, res, next) => {
   try {
     if(event === "installation_repositories") {
       console.log("Received installation_repositories event:", payload.action);
-      await handleInstallationEvent(payload);
+      const user = await handleInstallationEvent(payload, event);
+      return res.status(200).json({
+        message: "installation_repositories handled",
+        user,
+      });
     }if (event === "pull_request") {
       console.log("Received pull_request event:", payload.action);
       await handlePullRequestEvent(payload);

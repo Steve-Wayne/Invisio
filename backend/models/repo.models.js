@@ -4,6 +4,7 @@ const Reposchema = new mongoose.Schema(
   {
     name: String,
     id: Number,
+    html_url:String,
     branches: {
       type: [String],
     },

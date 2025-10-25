@@ -6,8 +6,8 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    user_id: {
-      type: String,
+    user_id: {   //target id of user
+      type: Number,
       required: true,
       unique: true,
     },
@@ -22,4 +22,4 @@ const UserSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-export const User = new mongoose.model('User', UserSchema);
+export const User =mongoose.model('User', UserSchema);

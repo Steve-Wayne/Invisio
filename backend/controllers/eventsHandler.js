@@ -6,6 +6,7 @@ import simpleGit from 'simple-git';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
+import { installation_handler } from './db_controller.js';
 
 export const handleWorkflowFailure = async (payload) => {
   const status = payload.workflow_run?.status || payload.workflow_job?.status;
@@ -32,7 +33,8 @@ export const handleWorkflowFailure = async (payload) => {
   }
 };
 
-export const handleInstallationEvent = async (payload) => {
+export const handleInstallationEvent = async (payload , event) => {
+  const DbCallResponse=await installation_handler(payload , event);
   const repos = payload.repositories || payload.repositories_added || [];
   const installationId = payload.installation?.id;
   if (!installationId) throw new Error('Missing installation id');
@@ -50,6 +52,7 @@ export const handleInstallationEvent = async (payload) => {
       await workflowService.init();
       await workflowService.checkflow(repo);
       await workflowService.smartEnableDependabot(repo);
+      return DbCallResponse;
     } catch (err) {
       console.error(`Error processing repo ${owner}/${repo}:`, err.message);
     }
