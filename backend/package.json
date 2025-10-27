@@ -17,7 +17,7 @@
     "@langchain/community": "^0.3.57",
     "@langchain/core": "^0.3.78",
     "@langchain/google-genai": "^0.2.18",
-    "@langchain/langgraph": "^0.4.9",
+    "@langchain/langgraph": "^1.0.1",
     "@langchain/openai": "^0.6.16",
     "@octokit/app": "^16.0.1",
     "@octokit/core": "^7.0.3",
