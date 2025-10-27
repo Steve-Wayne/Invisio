@@ -37,7 +37,7 @@
     "prettier": "^3.5.3",
     "simple-git": "^3.28.0",
     "tweetsodium": "^0.0.6",
-    "zod": "^3.25.76"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
