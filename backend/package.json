@@ -14,7 +14,7 @@
   "dependencies": {
     "@google/genai": "^1.8.0",
     "@google/generative-ai": "^0.24.1",
-    "@langchain/community": "^0.3.57",
+    "@langchain/community": "^1.0.0",
     "@langchain/core": "^0.3.78",
     "@langchain/google-genai": "^0.2.18",
     "@langchain/langgraph": "^0.4.9",
