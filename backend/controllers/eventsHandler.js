@@ -1,10 +1,12 @@
 import { InvisioFlow } from '../services/WorkflowService.js';
-import { GeminiService } from '../services/provider_gemini.js';
+import { GeminiService } from '../services/models/provider_gemini.js';
 import { generateAutofixesPullRequest } from './alertcontroller.js';
+import { applyAnalysisResults , initWorkflowService } from './automaters.js';
 import simpleGit from 'simple-git';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
+import { installation_handler } from './db_controller.js';
 
 export const handleWorkflowFailure = async (payload) => {
   const status = payload.workflow_run?.status || payload.workflow_job?.status;
@@ -31,7 +33,8 @@ export const handleWorkflowFailure = async (payload) => {
   }
 };
 
-export const handleInstallationEvent = async (payload) => {
+export const handleInstallationEvent = async (payload , event) => {
+  const DbCallResponse=await installation_handler(payload , event);
   const repos = payload.repositories || payload.repositories_added || [];
   const installationId = payload.installation?.id;
   if (!installationId) throw new Error('Missing installation id');
@@ -49,6 +52,7 @@ export const handleInstallationEvent = async (payload) => {
       await workflowService.init();
       await workflowService.checkflow(repo);
       await workflowService.smartEnableDependabot(repo);
+      return DbCallResponse;
     } catch (err) {
       console.error(`Error processing repo ${owner}/${repo}:`, err.message);
     }
@@ -67,37 +71,19 @@ export const handlePullRequestEvent = async (payload) => {
     const prBody = payload.pull_request?.body || '';
     // Get the PR diff
     const installationId = payload.installation?.id;
-    const workflowService = new (await import('../services/WorkflowService.js')).InvisioFlow(owner, installationId);
-    await workflowService.init();
+    const workflowService = await initWorkflowService(owner, installationId);
     const { data: diff } = await workflowService.octokit.pulls.get({ owner, repo, pull_number: prNumber });
     const prDiff = diff.diff_url ? (await (await fetch(diff.diff_url)).text()) : '';
     // Analyze PR with Gemini
     const gemini = new GeminiService();
     const analysis = await gemini.analyze_pr(prTitle, prBody, prDiff);
     // Add labels if any
-    if (analysis.labels && analysis.labels.length > 0) {
-      await workflowService.octokit.issues.addLabels({
-        owner,
-        repo,
-        issue_number: prNumber,
-        labels: analysis.labels
-      });
-    }
-    // Add review comment if any
-    if (analysis.comment) {
-      await workflowService.octokit.pulls.createReview({
-        owner,
-        repo,
-        pull_number: prNumber,
-        body: analysis.comment,
-        event: 'COMMENT'
-      });
-    }
+    await applyAnalysisResults(workflowService, { owner, repo, prNumber }, analysis);
     console.log('PR analyzed and suggestions posted.');
   } catch (e) {
     console.error('Error handling pull_request event with Gemini:', e);
   }
-};
+}
 
 // Auto-rebase handler for PRs behind base branch
 export const handleAutoRebasePR = async (payload) => {
@@ -140,61 +126,16 @@ export const handleAutoRebasePR = async (payload) => {
  * Attempts to auto-resolve merge conflicts in a PR using Gemini AI.
  * @param {object} params - { owner, repo, prNumber, base, head, installationId, octokit }
  */
-export async function resolveMergeConflictsWithAI({ owner, repo, prNumber, base, head, installationId, octokit }) {
-  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pr-rebase-'));
-  const git = simpleGit(tmpDir);
-  try {
-    // 1. Clone repo
-    const repoUrl = `https://x-access-token:${process.env.GITHUB_APP_TOKEN}@github.com/${owner}/${repo}.git`;
-    await git.clone(repoUrl, tmpDir);
-    await git.cwd(tmpDir);
-    // 2. Fetch and checkout PR branch
-    await git.fetch('origin', head);
-    await git.checkout(head);
-    // 3. Fetch and merge base
-    await git.fetch('origin', base);
-    try {
-      await git.merge([`origin/${base}`]);
-    } catch (mergeErr) {
-      // 4. If conflicts, resolve with Gemini
-      const status = await git.status();
-      for (const file of status.conflicted) {
-        const filePath = path.join(tmpDir, file);
-        let content = await fs.readFile(filePath, 'utf8');
-        // Call Gemini to resolve conflict
-        const gemini = new GeminiService();
-        const resolved = await gemini.resolveConflict(file, content);
-        await fs.writeFile(filePath, resolved, 'utf8');
-        await git.add(file);
-      }
-      await git.commit('Resolve merge conflicts using Gemini AI');
-    }
-    // 5. Push updated PR branch
-    await git.push('origin', head);
-    // 6. Comment on PR
-    await octokit.issues.createComment({
-      owner,
-      repo,
-      issue_number: prNumber,
-      body: 'Conflicts resolved via AI. Please review the changes.'
-    });
-    console.log(`Conflicts resolved and branch pushed for PR #${prNumber}`);
-  } catch (err) {
-    console.error('Error during AI conflict resolution:', err);
-    throw err;
-  } finally {
-    // Clean up temp dir
-    await fs.rm(tmpDir, { recursive: true, force: true });
-  }
-}
+
 
 
 export const handleCheckRunEvent = async (payload) => {
   console.log("Received check_run event:", payload.action);
+  const regex = /\((?!actions\))[^\)]*\)/;
 
   if (
     payload.action === "completed" &&
-    payload.check_run.name.toLowerCase().includes("codeql") &&
+    regex.test(payload.check_run.name.toLowerCase()) &&
     payload.check_run.conclusion === "success"
   ) {
     const owner = payload.repository.owner.login;

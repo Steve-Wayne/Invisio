@@ -59,6 +59,3 @@ export const Gitleakscommit = async (octokit, owner, repo) => {
   console.log(' Gitleaks workflow committed successfully');
 };
 
-// Example usage:
-// const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-// CommitFlow(octokit, 'your-org', 'your-repo');

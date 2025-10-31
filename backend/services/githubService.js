@@ -7,13 +7,14 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 dotenv.config()
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
-const privateKeyPath = path.resolve(__dirname, '..', process.env.APP_PRIVATE_KEY_PATH);
+// const privateKeyPath = path.resolve(__dirname, '..', process.env.APP_PRIVATE_KEY_PATH);
+const privateKey=Buffer.from(process.env.APP_PRIVATE_KEY, 'base64').toString('utf-8');
 const app= new App({
   appId:Number(process.env.APP_ID),
-  privateKey:fs.readFileSync(privateKeyPath, 'utf8'),
+  privateKey:privateKey,
 })
 
 export const Install_process= class Install{
@@ -124,21 +125,17 @@ export const Install_process= class Install{
 // Get all repos a user has installed the app on, and the installation id for the user
 export async function getUserInstallationsAndRepos(userLogin) {
   try {
-    // Get all installations for the app
     const response = await app.octokit.request('GET /app/installations');
     const installations = response.data;
-    // Find the installation for the given user login
     const userInstall = installations.find(inst => inst.account && inst.account.login === userLogin);
     if (!userInstall) {
       return { installationId: null, repositories: [] };
     }
-    // Generate installation access token
     const tokenResponse = await app.octokit.request('POST /app/installations/{installation_id}/access_tokens', {
       installation_id: userInstall.id
     });
     const installToken = tokenResponse.data.token;
     const installationOctokit = new Octokit({ auth: installToken });
-    // Get repositories for this installation
     const reposResponse = await installationOctokit.request('GET /installation/repositories');
     const repositories = reposResponse.data.repositories || [];
     return { installationId: userInstall.id, repositories };

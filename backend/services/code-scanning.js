@@ -31,28 +31,28 @@ export const GetStaticWorkflow = async (octokit) => {
 };
 
 export const get_values = async (octokit, owner, repo) => {
+
   const { data: repoData } = await octokit.repos.get({ owner, repo });
   const defaultBranch = repoData.default_branch;
-
+  
   const { data: protectedBranchesData } = await octokit.repos.listBranches({
     owner,
     repo,
     protected: true,
   });
   const protectedBranches = protectedBranchesData.map(branch => branch.name);
-
+  
   const { data: languageData } = await octokit.repos.listLanguages({ owner, repo });
   const detected_languages = Object.keys(languageData)
-    .filter(l => CODEQL_LANGUAGES[l])
-    .map(l => CODEQL_LANGUAGES[l]);
+  .filter(l => CODEQL_LANGUAGES[l])
+  .map(l => CODEQL_LANGUAGES[l]);
   const uniqueLanguages = [...new Set(detected_languages)];
-
+  
   const codeqlLanguagesMatrix = {
     language: uniqueLanguages
   };
-
+  
   const cronWeekly = "0 0 * * 0"; // every Sunday at 00:00 UTC
-
   return {
     defaultBranch,
     protectedBranches,
@@ -102,14 +102,21 @@ export const CommitFlow = async (octokit, owner, repo) => {
   const defbranch = values.defaultBranch;
   const dynamicyml = await InjectVars(values, staticyml);
 
-  await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
-    owner: owner,
-    repo: repo,
-    path: '.github/workflows/codeql.yml',
-    message: "Add CodeQL workflow",
-    content: Buffer.from(dynamicyml, 'utf-8').toString('base64'),
-    branch: defbranch,
-  });
-
-  console.log(" Commit Successful");
+  try {
+    await octokit.request('PUT /repos/{owner}/{repo}/contents/{path}', {
+      owner: owner,
+      repo: repo,
+      path: '.github/workflows/codeql.yml',
+      message: "Add CodeQL workflow",
+      content: Buffer.from(dynamicyml, 'utf-8').toString('base64'),
+      branch: defbranch,
+    });
+    console.log(" Commit Successful");
+  } catch (error) {
+      console.error("Error committing workflow:");
+    console.error("Message:", error.message);
+    if (error.status) console.error("Status:", error.status);
+    if (error.response?.data) console.error("Response:", error.response.data);
+    return null;
+  }
 };

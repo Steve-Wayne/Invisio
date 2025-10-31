@@ -1,66 +1,79 @@
-# Backend API Endpoints
+# Backend API Documentation
 
 This document lists all available API endpoints for the backend service. Use these endpoints to integrate with the frontend or for testing purposes.
 
 ---
 
+## Table of Contents
+
+- [General App Endpoints](#general-app-endpoints)
+- [Repository Endpoints](#repository-endpoints)
+- [User Endpoints](#user-endpoints)
+- [Webhook Endpoint](#webhook-endpoint)
+- [Notes](#notes)
+
+---
+
 ## General App Endpoints
 
-- **GET `/app`**
-  - Authenticate the app (App Auth).
+- **GET `/app`**  
+  Authenticate the app (App Auth).
 
-- **GET `/app/installations`**
-  - List all installations for the app.
+- **GET `/app/installations`**  
+  List all installations for the app.
 
-- **POST `/app/installations/:id`**
-  - Generate an installation access token for the given installation ID.
+- **POST `/app/installations/:id`**  
+  Generate an installation access token for the given installation ID.
 
-- **GET `/app/installations/get/:id`**
-  - Verify installation ID.
+- **GET `/app/installations/get/:id`**  
+  Verify installation ID.
 
 ---
 
 ## Repository Endpoints
 
-- **GET `/app/:owner/:repo/contents`**
-  - Get repository contents (workflows, etc).
+- **GET `/app/:owner/:repo/contents`**  
+  Get repository contents (workflows, files).
 
-- **GET `/app/:owner/:repo/variables`**
-  - Get repository secrets/variables (alerts).
+- **GET `/app/:owner/:repo/alerts`**  
+  Get repository secrets/variables ("alerts").
 
-- **POST `/app/:owner/:repo/fixalerts`**
-  - Generate an autofix for a code scanning alert.
+- **POST `/app/:owner/:repo/generate_alert_fix`**  
+  Generate an autofix for a code scanning alert (single alert).
 
-- **POST `/app/:owner/:repo/fix_alerts`**
-  - Generate autofixes and open a pull request for alerts.
+- **POST `/app/:owner/:repo/fix_alerts_openpr`**  
+  Generate autofixes for alerts and open a pull request.
 
-- **GET `/app/:owner/:repo/has-webhook`**
-  - Check if the repository has a webhook installed.
+- **GET `/app/:owner/:repo/has-webhook`**  
+  Check if the repository has a webhook installed.
 
-- **POST `/app/:owner/:repo/enable-dependabot`**
-  - Enable Dependabot for the repository (smart enable).
+- **POST `/app/:owner/:repo/enable-dependabot`**  
+  Enable Dependabot for the repository (smart enable).
+
+- **GET `/app/:owner/:repo/pull`**  
+  Get pull requests for the repository.
 
 ---
 
 ## User Endpoints
 
-- **GET `/app/user/:userLogin/installations`**
-  - Get all installations and repositories for a user.
+- **GET `/app/user/:userLogin/installations`**  
+  Get all installations and repositories for a user.
 
 ---
 
 ## Webhook Endpoint
 
-- **POST `/webhook`**
-  - GitHub webhook endpoint (raw JSON, used for event handling).
+- **POST `/webhook`**  
+  Receive GitHub webhooks (raw JSON payload; used for event handling).
 
 ---
 
 ## Notes
+
 - All endpoints are relative to your backend base URL (e.g., `http://localhost:3000`).
-- Some endpoints require authentication or specific headers.
-- For POST endpoints, refer to controller logic for required body parameters.
+- Some endpoints require authentication or specific headers (such as App Token or JWT).
+- For POST endpoints, refer to the controller code for required body parameters.
+- See corresponding controller files for detailed request and response formats, or ask for endpoint usage examples.
 
 ---
-
-For more details on request/response formats, see the corresponding controller files or ask for examples.

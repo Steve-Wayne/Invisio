@@ -2,7 +2,7 @@ import { error } from 'console';
 import { Install_process, getUserInstallationsAndRepos }   from '../services/githubService.js';
 import fs from 'fs';
 import { InvisioFlow } from '../services/WorkflowService.js';
-import { OpenAIService } from '../services/provider_openai.js';
+import { OpenAIService } from '../services/models/provider_openai.js';
 
 export const authenticate_app=async(req,res)=>{
   try{
@@ -114,5 +114,24 @@ export const getRepository = async (req, res) => {
     }
   };
 
-
-
+export const getPulls=async(req , res , next)=>{
+  try {
+    const { owner, repo } = req.params;
+    const obj = new InvisioFlow(owner);
+    await obj.init();
+    const data = await obj.get_pull_request(repo);
+    const number= data.map(pr => pr.number);
+    const pullRequests = [];
+    for (const num of number) {
+      const pull = await obj.getPullDetails(repo, num);
+      pullRequests.push(pull);
+    }
+    if (pullRequests.length === 0) {
+      return res.status(404).json({ error: 'Pull requests not found' });
+    }
+    res.json(pullRequests);
+  } catch (error) {
+    console.error('Error fetching pull requests:', error);
+    res.status(500).json({ error: 'Failed to fetch pull requests' });
+  }
+}

@@ -6,13 +6,14 @@ import {
   handlePullRequestEvent,
   handleCheckRunEvent,
 } from "./eventsHandler.js";
-// GitHub signature verification
+
 function verifySignature(req, secret) {
   const signature = req.headers["x-hub-signature-256"];
   if (!signature || !secret) return false;
 
   const hmac = crypto.createHmac("sha256", secret);
-  const digest = "sha256=" + hmac.update(req.body).digest("hex");
+  hmac.update(req.body);
+  const digest = "sha256=" + hmac.digest("hex");
 
   if (signature.length !== digest.length) return false;
   return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
@@ -29,7 +30,11 @@ export const githubWebhookHandler = (secret) => async (req, res, next) => {
   try {
     if(event === "installation_repositories") {
       console.log("Received installation_repositories event:", payload.action);
-      await handleInstallationEvent(payload);
+      const user = await handleInstallationEvent(payload, event);
+      return res.status(200).json({
+        message: "installation_repositories handled",
+        user,
+      });
     }if (event === "pull_request") {
       console.log("Received pull_request event:", payload.action);
       await handlePullRequestEvent(payload);
@@ -38,10 +43,7 @@ export const githubWebhookHandler = (secret) => async (req, res, next) => {
     } else if (event === "check_run") {
       console.log("Received check_run event:", payload.action);
       await handleCheckRunEvent(payload);
-    } else {
-      console.log("Unhandled event:", event);
-    }
-
+    } 
     res.status(200).json({ success: true });
   } catch (error) {
     next(error);

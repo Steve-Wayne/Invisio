@@ -1,7 +1,8 @@
 import express, { Router } from 'express';
-import { authenticate_app, fetch_installations, generate_install_token, get_id, getRepository, checkRepoWebhook, getUserInstallationsAndReposController } from '../controllers/githubcontrollers.js';
+import { authenticate_app, fetch_installations, generate_install_token, get_id, getRepository, checkRepoWebhook, getUserInstallationsAndReposController, getPulls } from '../controllers/githubcontrollers.js';
 import { getRepoAlerts, generateAutofix, generateAutofixesPullRequest, enableSmartDependabot } from '../controllers/alertcontroller.js';
 import { githubWebhookHandler } from '../controllers/webhookController.js';
+import { analyzePullRequest } from '../controllers/pull_controller.js';
 import dotenv from 'dotenv';
 import RateLimit from 'express-rate-limit';
 
@@ -16,21 +17,26 @@ const limiter = RateLimit({
 
 router.use(limiter);
 
+// Pull Request Endpoints
+router.post('/app/:owner/:repo/pulls/:number/analyze', analyzePullRequest);
+
+// Repo Endpoints 
 router.route('/app/:owner/:repo/contents').get((req, res, next) => {
   console.log('Find workflows for');
   next();
 }, getRepository);
 
-router.route('/app/:owner/:repo/variables').get((req, res, next) => {
+router.route('/app/:owner/:repo/alerts').get((req, res, next) => {
   console.log("Get secrets for ");
   next();
 }, getRepoAlerts);
 
-router.route('/app/:owner/:repo/fixalerts').post((req, res, next) => {
+router.route('/app/:owner/:repo/generate_alert_fix').post((req, res, next) => {
   console.log('Generate autofix for');
   next();
 }, generateAutofix);
 
+// App and installations endpoints
 router.route('/app').get((req, res, next) => {
   console.log("APP_AUTH REQUEST FOR");
   next();
@@ -50,8 +56,8 @@ router.route('/app/installations/get/:id').get((req, res, next) => {
   console.log("Request for id verification");
   next();
 }, get_id);
-
-router.route('/app/:owner/:repo/fix_alerts').post((req, res, next) => {
+// Automation Endpoints
+router.route('/app/:owner/:repo/fix_alerts_openpr').post((req, res, next) => {
   console.log("Alert autofix commsion request");
   next();
 }, generateAutofixesPullRequest);
@@ -71,5 +77,13 @@ router.route('/app/:owner/:repo/enable-dependabot').post((req, res, next) => {
   next();
 }, enableSmartDependabot);
 
+router.route('/app/:owner/:repo/pull').get((req , res , next)=>{
+  console.log('Get Pulls for', req.params.owner, req.params.repo);
+  next();
+} , getPulls);
 
+// Hollow purple
+router.route('/app/:owner/:repo/install_event/wakeup').get((req , res , next)=>{
+  console.log('Arise');
+})
 export default router;
